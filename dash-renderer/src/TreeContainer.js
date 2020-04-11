@@ -171,7 +171,7 @@ class TreeContainer extends Component {
     }
 
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
-        const {_dashprivate_config} = this.props;
+        const {_dashprivate_config, pass_through_props} = this.props;
 
         if (isEmpty(_dashprivate_layout)) {
             return null;
@@ -192,7 +192,7 @@ class TreeContainer extends Component {
             // just the id we pass on to the rendered component
             props.id = stringifyId(props.id);
         }
-        const extraProps = {loading_state, setProps};
+        const extraProps = {loading_state, setProps, pass_through_props};
 
         return (
             <ComponentErrorBoundary
@@ -258,6 +258,7 @@ TreeContainer.propTypes = {
     _dashprivate_loadingState: PropTypes.object,
     _dashprivate_config: PropTypes.object,
     _dashprivate_path: PropTypes.array,
+    pass_through_props: PropTypes.any,
 };
 
 function isLoadingComponent(layout) {
@@ -343,17 +344,22 @@ export const AugmentedTreeContainer = connect(
         config: state.config,
     }),
     dispatch => ({dispatch}),
-    (stateProps, dispatchProps, ownProps) => ({
-        _dashprivate_graphs: stateProps.graphs,
-        _dashprivate_dispatch: dispatchProps.dispatch,
-        _dashprivate_layout: ownProps._dashprivate_layout,
-        _dashprivate_path: ownProps._dashprivate_path,
-        _dashprivate_loadingState: getLoadingState(
-            ownProps._dashprivate_layout,
-            stateProps.pendingCallbacks
-        ),
-        _dashprivate_config: stateProps.config,
-    })
+    (stateProps, dispatchProps, ownProps) => {
+        // eslint-disable-next-line no-unused-vars
+        const {_dashprivate_layout, _dashprivate_path, ...pass_through_props } = ownProps;
+        return {
+            pass_through_props,
+            _dashprivate_graphs: stateProps.graphs,
+            _dashprivate_dispatch: dispatchProps.dispatch,
+            _dashprivate_layout: ownProps._dashprivate_layout,
+            _dashprivate_path: ownProps._dashprivate_path,
+            _dashprivate_loadingState: getLoadingState(
+                ownProps._dashprivate_layout,
+                stateProps.pendingCallbacks
+            ),
+            _dashprivate_config: stateProps.config,
+        }
+    }
 )(TreeContainer);
 
 export default AugmentedTreeContainer;
