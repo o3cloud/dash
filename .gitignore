@@ -63,6 +63,6 @@ node_modules/
 .npm
 npm-debug*
 
-dash_renderer/
-digest.json
+#dash_renderer/
+#digest.json
 VERSION.txt
