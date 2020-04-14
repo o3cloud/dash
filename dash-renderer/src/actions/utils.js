@@ -1,4 +1,5 @@
 import {append, concat, has, path, type} from 'ramda';
+import {stringify} from 'qs';
 
 /*
  * requests_pathname_prefix is the new config parameter introduced in
