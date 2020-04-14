@@ -24,6 +24,17 @@ export function urlBase(config) {
     return base.charAt(base.length - 1) === '/' ? base : base + '/';
 }
 
+export function getEndPoint(config, endpoint) {
+    if (
+        type(config) === 'Null' ||
+        (type(config) === 'Object' && !has('api_params', config))
+    ) {
+        return endpoint;
+    } else if (has(endpoint, config.api_params)) {
+        return `${endpoint}?${stringify(config.api_params[endpoint])}`;
+    }
+    return endpoint;
+}
 const propsChildren = ['props', 'children'];
 
 // crawl a layout object or children array, apply a function on every object

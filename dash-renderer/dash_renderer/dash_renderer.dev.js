@@ -32797,7 +32797,7 @@ var request = {
 function apiThunk(endpoint, method, store, id, body) {
   return function (dispatch, getState) {
     var config = getState().config;
-    var url = "".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_2__["urlBase"])(config)).concat(endpoint);
+    var url = "".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_2__["urlBase"])(config)).concat(Object(_utils__WEBPACK_IMPORTED_MODULE_2__["getEndPoint"])(config, endpoint));
     dispatch({
       type: store,
       payload: {
@@ -35331,12 +35331,13 @@ function getPath(paths, id) {
 /*!******************************!*\
   !*** ./src/actions/utils.js ***!
   \******************************/
-/*! exports provided: urlBase, crawlLayout, EventEmitter */
+/*! exports provided: urlBase, getEndPoint, crawlLayout, EventEmitter */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "urlBase", function() { return urlBase; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getEndPoint", function() { return getEndPoint; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "crawlLayout", function() { return crawlLayout; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EventEmitter", function() { return EventEmitter; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
@@ -35362,6 +35363,15 @@ function urlBase(config) {
 
   var base = hasReqPrefix ? config.requests_pathname_prefix : config.url_base_pathname;
   return base.charAt(base.length - 1) === '/' ? base : base + '/';
+}
+function getEndPoint(config, endpoint) {
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(config) === 'Null' || Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(config) === 'Object' && !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('api_params', config)) {
+    return endpoint;
+  } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])(endpoint, config.api_params)) {
+    return "".concat(endpoint, "?").concat(stringify(config.api_params[endpoint]));
+  }
+
+  return endpoint;
 }
 var propsChildren = ['props', 'children']; // crawl a layout object or children array, apply a function on every object
 

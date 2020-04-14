@@ -1,6 +1,6 @@
 import {mergeDeepRight} from 'ramda';
 import {handleAsyncError, getCSRFHeader} from '../actions';
-import {urlBase} from './utils';
+import {urlBase, getEndPoint} from './utils';
 
 function GET(path, fetchConfig) {
     return fetch(
@@ -28,7 +28,7 @@ const request = {GET, POST};
 export default function apiThunk(endpoint, method, store, id, body) {
     return (dispatch, getState) => {
         const config = getState().config;
-        const url = `${urlBase(config)}${endpoint}`;
+        const url = `${urlBase(config)}${getEndPoint(config, endpoint)}`;
 
         dispatch({
             type: store,
