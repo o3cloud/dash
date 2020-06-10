@@ -7,16 +7,16 @@ _js_dist_dependencies = [
     {
         "external_url": {
             "prod": [
-                "https://unpkg.com/@babel/polyfill@7.8.7/dist/polyfill.min.js",
-                "https://unpkg.com/react@16.13.0/umd/react.production.min.js",
-                "https://unpkg.com/react-dom@16.13.0/umd/react-dom.production.min.js",
-                "https://unpkg.com/prop-types@15.7.2/prop-types.min.js",
+                "https://cdn.staticfile.org/babel-polyfill/7.8.7/polyfill.min.js",
+                "https://cdn.staticfile.org/react/16.13.0/cjs/react.production.min.js",
+                "https://cdn.staticfile.org/react-dom/16.13.0/umd/react-dom.production.min.js",
+                "https://cdn.staticfile.org/react-dom/16.13.0/umd/react-dom.production.min.js",
             ],
             "dev": [
-                "https://unpkg.com/@babel/polyfill@7.8.7/dist/polyfill.min.js",
-                "https://unpkg.com/react@16.13.0/umd/react.development.js",
-                "https://unpkg.com/react-dom@16.13.0/umd/react-dom.development.js",
-                "https://unpkg.com/prop-types@15.7.2/prop-types.js",
+                "https://cdn.staticfile.org/babel-polyfill/7.8.7/polyfill.js",
+                "https://cdn.staticfile.org/react/16.13.0/cjs/react.development.js",
+                "https://cdn.staticfile.org/react-dom/16.13.0/umd/react-dom.development.js",
+                "https://cdn.staticfile.org/prop-types/15.7.2/prop-types.js",
             ],
         },
         "relative_package_path": {
