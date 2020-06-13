@@ -207,6 +207,15 @@ class Dash(object):
         env: ``DASH_SUPPRESS_CALLBACK_EXCEPTIONS``
     :type suppress_callback_exceptions: boolean
 
+    :param prevent_initial_callbacks: Default ``False``: Sets the default value
+         of ``prevent_initial_call`` for all callbacks added to the app.
+         Normally all callbacks are fired when the associated outputs are first
+         added to the page. You can disable this for individual callbacks by
+         setting ``prevent_initial_call`` in their definitions, or set it
+         ``True`` here in which case you must explicitly set it ``False`` for
+         those callbacks you wish to have an initial call. This setting has no
+         effect on triggering callbacks when their inputs change later on.
+
     :param show_undo_redo: Default ``False``, set to ``True`` to enable undo
         and redo buttons for stepping through the history of the app state.
     :type show_undo_redo: boolean
@@ -237,6 +246,7 @@ class Dash(object):
         external_scripts=None,
         external_stylesheets=None,
         suppress_callback_exceptions=None,
+        prevent_initial_callbacks=True,
         show_undo_redo=False,
         plugins=None,
         **obsolete
@@ -284,6 +294,7 @@ class Dash(object):
             suppress_callback_exceptions=get_combined_config(
                 "suppress_callback_exceptions", suppress_callback_exceptions, False
             ),
+            prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
         )
         self.config.set_read_only(
@@ -389,7 +400,8 @@ class Dash(object):
         self.server.before_first_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
-        self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
+        self.server.errorhandler(InvalidResourceError)(
+            self._invalid_resources_handler)
 
         self._add_url(
             "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
@@ -409,7 +421,8 @@ class Dash(object):
         full_name = self.config.routes_pathname_prefix + name
 
         self.server.add_url_rule(
-            full_name, view_func=view_func, endpoint=full_name, methods=list(methods)
+            full_name, view_func=view_func, endpoint=full_name, methods=list(
+                methods)
         )
 
         # record the url in Dash.routes so that it can be accessed later
@@ -496,7 +509,8 @@ class Dash(object):
         def _relative_url_path(relative_package_path="", namespace=""):
 
             module_path = os.path.join(
-                os.path.dirname(sys.modules[namespace].__file__), relative_package_path
+                os.path.dirname(
+                    sys.modules[namespace].__file__), relative_package_path
             )
 
             modified = int(os.stat(module_path).st_mtime)
@@ -536,7 +550,8 @@ class Dash(object):
                     else:
                         srcs += resource["external_url"]
             elif "absolute_path" in resource:
-                raise Exception("Serving files from absolute_path isn't supported yet")
+                raise Exception(
+                    "Serving files from absolute_path isn't supported yet")
             elif "asset_path" in resource:
                 static_url = self.get_asset_url(resource["asset_path"])
                 # Add a cache-busting query param
@@ -579,12 +594,13 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
-            )
-            + self.config.external_scripts
-            + self._collect_and_register_resources(
-                self.scripts.get_all_scripts(dev_bundles=dev)
-                + self.scripts._resources._filter_resources(
+                self.scripts._resources._filter_resources(
+                    deps, dev_bundles=dev)
+            ) +
+            self.config.external_scripts +
+            self._collect_and_register_resources(
+                self.scripts.get_all_scripts(dev_bundles=dev) +
+                self.scripts._resources._filter_resources(
                     dash_renderer._js_dist, dev_bundles=dev
                 )
             )
@@ -596,8 +612,8 @@ class Dash(object):
                 if isinstance(src, dict)
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
-            ]
-            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
+            ] +
+            ["<script>{}</script>".format(src) for src in self._inline_scripts]
         )
 
     def _generate_config_html(self):
@@ -621,7 +637,8 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            tags.append(
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -633,7 +650,8 @@ class Dash(object):
     def serve_component_suites(self, package_name, fingerprinted_path):
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
 
-        _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
+        _validate.validate_js_path(
+            self.registered_paths, package_name, path_in_pkg)
 
         mimetype = (
             {
@@ -780,7 +798,10 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state):
+    def _insert_callback(self, output, inputs, state, prevent_initial_call=None):
+        if prevent_initial_call is None:
+            prevent_initial_call = self.config.prevent_initial_callbacks
+
         _validate.validate_callback(output, inputs, state)
         callback_id = create_callback_id(output)
         callback_spec = {
@@ -788,6 +809,7 @@ class Dash(object):
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
             "clientside_function": None,
+            "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
@@ -797,7 +819,7 @@ class Dash(object):
 
         return callback_id
 
-    def clientside_callback(self, clientside_function, output, inputs, state=()):
+    def clientside_callback(self, clientside_function, output, inputs, state=(), prevent_initial_call=None):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -857,8 +879,12 @@ class Dash(object):
              Input('another-input', 'value')]
         )
         ```
+
+        The last, optional argument `prevent_initial_call` causes the callback
+         not to fire when its outputs are first added to the page. Defaults to
+         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        self._insert_callback(output, inputs, state)
+        self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -889,8 +915,20 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=()):
-        callback_id = self._insert_callback(output, inputs, state)
+    def callback(self, output, inputs, state=(), prevent_initial_call=None):
+        """
+         Normally used as a decorator, `@app.callback` provides a server-side
+         callback relating the values of one or more `output` items to one or
+         more `input` items which will trigger the callback when they change,
+         and optionally `state` items which provide additional information but
+         do not trigger the callback directly.
+
+         The last, optional argument `prevent_initial_call` causes the callback
+         not to fire when its outputs are first added to the page. Defaults to
+         `False` unless `prevent_initial_callbacks=True` at the app level.
+         """
+        callback_id = self._insert_callback(
+            output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):
@@ -909,7 +947,8 @@ class Dash(object):
                 if not multi:
                     output_value, output_spec = [output_value], [output_spec]
 
-                _validate.validate_multi_return(output_spec, output_value, callback_id)
+                _validate.validate_multi_return(
+                    output_spec, output_value, callback_id)
 
                 component_ids = collections.defaultdict(dict)
                 has_update = False
@@ -917,7 +956,8 @@ class Dash(object):
                     if isinstance(val, _NoUpdate):
                         continue
                     for vali, speci in (
-                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
+                        zip(val, spec) if isinstance(
+                            spec, list) else [[val, spec]]
                     ):
                         if not isinstance(vali, _NoUpdate):
                             has_update = True
@@ -959,7 +999,8 @@ class Dash(object):
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
-        response = flask.g.dash_response = flask.Response(mimetype="application/json")
+        response = flask.g.dash_response = flask.Response(
+            mimetype="application/json")
 
         args = inputs_to_vals(inputs) + inputs_to_vals(state)
 
@@ -1023,7 +1064,8 @@ class Dash(object):
                 full = os.path.join(current, f)
 
                 if f.endswith("js"):
-                    self.scripts.append_script(self._add_assets_resource(path, full))
+                    self.scripts.append_script(
+                        self._add_assets_resource(path, full))
                 elif f.endswith("css"):
                     self.css.append_css(self._add_assets_resource(path, full))
                 elif f == "favicon.ico":
@@ -1160,7 +1202,8 @@ class Dash(object):
             ("hot_reload_max_retry", int, 8),
         ):
             dev_tools[attr] = _type(
-                get_combined_config(attr, kwargs.get(attr, None), default=default)
+                get_combined_config(attr, kwargs.get(
+                    attr, None), default=default)
             )
 
         return dev_tools
@@ -1310,9 +1353,9 @@ class Dash(object):
                 return get_current_traceback(skip=skip).render_full(), 500
 
         if (
-            debug
-            and dev_tools.serve_dev_bundles
-            and not self.scripts.config.serve_locally
+            debug and
+            dev_tools.serve_dev_bundles and
+            not self.scripts.config.serve_locally
         ):
             # Dev bundles only works locally.
             self.scripts.config.serve_locally = True
@@ -1334,7 +1377,8 @@ class Dash(object):
                 asset_path = (
                     os.path.relpath(
                         filename,
-                        os.path.commonprefix([self.config.assets_folder, filename]),
+                        os.path.commonprefix(
+                            [self.config.assets_folder, filename]),
                     )
                     .replace("\\", "/")
                     .lstrip("/")
@@ -1481,7 +1525,8 @@ class Dash(object):
             assert port in range(1, 65536)
         except Exception as e:
             e.args = [
-                "Expecting an integer from 1 to 65535, found port={}".format(repr(port))
+                "Expecting an integer from 1 to 65535, found port={}".format(
+                    repr(port))
             ]
             raise
 
