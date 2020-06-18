@@ -33042,8 +33042,28 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
     });
   } else {
     content = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
-      className: "_dash-loading"
-    }, "Loading...");
+      "class": "boot-loading-container"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-logo"
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-icon"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-box"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-ani"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-ani-item1"
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-ani-item2"
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-ani-item3"
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      "class": "boot-loading-ani-item4"
+    })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      className: "boot-loading-text"
+    }, "Loading...")));
   }
 
   return config && config.ui === true ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_error_GlobalErrorContainer_react__WEBPACK_IMPORTED_MODULE_5__["default"], null, content) : content;
@@ -39980,4 +40000,3 @@ module.exports = __webpack_require__(/*! ./src/index.js */"./src/index.js");
 /***/ })
 
 /******/ });
-//# sourceMappingURL=dash_renderer.dev.js.map

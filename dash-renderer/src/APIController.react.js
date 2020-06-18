@@ -72,7 +72,24 @@ const UnconnectedContainer = props => {
             />
         );
     } else {
-        content = <div className="_dash-loading">Loading...</div>;
+        content = (
+            <div class="boot-loading-container">
+                <div class="boot-loading">
+                    <div class="boot-loading-logo"></div>
+                    <div class="boot-loading-icon">
+                        <div class="boot-loading-box">
+                            <div class="boot-loading-ani">
+                                <div class="boot-loading-ani-item1"></div>
+                                <div class="boot-loading-ani-item2"></div>
+                                <div class="boot-loading-ani-item3"></div>
+                                <div class="boot-loading-ani-item4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="boot-loading-text">Loading...</div>
+                </div>
+            </div>
+        );
     }
 
     return config && config.ui === true ? (
